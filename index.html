@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f8f6f1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Fifths">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="description" content="Practice all 15 major and 15 minor key signatures with adaptive spaced repetition. Offline and private.">
+<title>Fifths — Key Signature Trainer</title>
+<style>
+:root { --bg:#f8f6f1; --paper:#fffefa; --ink:#1d302d; --muted:#66736f; --teal:#116455; --teal-soft:#e4f2ed; --line:#dfE4dd; --amber:#c98a3b; --amber-soft:#fbefd9; --red:#af4c44; --red-soft:#fff0ed; --blue:#56799d; --blue-soft:#eaf0f8; --shadow:0 9px 30px rgba(28,52,44,.055); }
+* { box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body { margin:0; min-width:310px; background:var(--bg); color:var(--ink); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+button,input,select { font:inherit; }
+button { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+button:focus-visible,input:focus-visible,select:focus-visible { outline:3px solid #64b19b;outline-offset:3px; }
+[hidden] { display:none!important; }
+.wrap { max-width:1060px; padding:0 24px; margin:auto; }
+header { border-bottom:1px solid var(--line); background:rgba(255,254,250,.8); }
+.header-inner { display:flex; align-items:center; justify-content:space-between; padding:18px 0; gap:14px; }
+.brand { display:flex;align-items:center;gap:13px;text-decoration:none;color:var(--ink); }
+.logomark { display:grid; place-items:center; width:42px; height:42px; border-radius:13px; background:var(--ink); color:#faf6ec; font:27px Georgia,serif; }
+.brandname { font:bold 22px Georgia,serif; letter-spacing:-.8px; line-height:1; }
+.brandtag { font-size:10px;letter-spacing:1.7px;text-transform:uppercase;color:var(--muted);margin-top:5px; }
+.local-pill { background:var(--teal-soft); color:var(--teal); border:1px solid #d1e8dc; border-radius:99px; font-size:12px; font-weight:650; padding:7px 12px; white-space:nowrap; }
+.local-pill::before { content:"●";margin-right:7px;font-size:9px; }
+.nav { display:flex;gap:7px; padding:16px 0 19px; }
+.nav button { border:1px solid transparent; background:transparent; color:var(--muted); padding:10px 17px; border-radius:11px; font-weight:650; }
+.nav button:hover {background:#eeeFe9;}
+.nav button[aria-selected=true] {background:var(--ink);color:white;}
+main { padding-bottom:62px; }
+.view { padding-top:19px; }
+.kicker { text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:800;color:var(--teal); margin:0 0 10px; }
+h1,h2,h3,p { margin-top:0; }
+h1 {font:normal clamp(31px,5vw,47px)/1.12 Georgia,serif; letter-spacing:-1.5px; margin-bottom:14px;}
+h2 {font:normal 27px/1.2 Georgia,serif; letter-spacing:-.6px; margin-bottom:14px;}
+h3 {font:normal 20px Georgia,serif; margin-bottom:10px; }
+.lead {color:var(--muted); font-size:16px; line-height:1.7; max-width:550px; margin:0 0 25px;}
+.hero { display:grid;grid-template-columns:1.35fr .85fr;gap:20px; margin-top:13px; }
+.hero-left {background:var(--paper);border:1px solid var(--line);border-radius:23px;padding:30px 30px 27px;box-shadow:var(--shadow); }
+.hero-side {position:relative; background:#e8eee8; border:1px solid #d9e4da; border-radius:23px; padding:28px 27px;overflow:hidden; }
+.hero-side::after {content:"♯"; position:absolute; right:-7px;bottom:-105px;font:250px Georgia,serif;color:rgba(19,83,69,.05); transform:rotate(-13deg);pointer-events:none;}
+.hero-side h2 {position:relative;font-size:24px;max-width:240px;margin-bottom:20px;}
+.how {position:relative;display:flex;gap:12px;margin-bottom:20px; max-width:260px;}
+.how-icon {display:grid;place-items:center;width:29px;height:29px;border-radius:9px;background:#f8fbf5;color:var(--teal);font-weight:800;flex-shrink:0;}
+.how b {display:block;font-size:13px;margin-bottom:2px;}
+.how span {color:#63716a;font-size:12.5px;line-height:1.5;display:block;}
+.stats {display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0 25px;}
+.stat {background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:19px 17px;}
+.stat-n {font:normal 34px/1.1 Georgia,serif;margin-bottom:6px;letter-spacing:-.9px;font-variant-numeric:tabular-nums;}
+.stat-l {text-transform:uppercase;font-size:10px;letter-spacing:1.25px;color:var(--muted);font-weight:800;}
+.controls {display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px;margin:21px 0;}
+.field > label {display:block;font-size:12px;text-transform:uppercase;letter-spacing:1.15px;color:var(--muted);font-weight:800;margin-bottom:8px;}
+.field select {width:100%;padding:12px 36px 12px 12px;border:1px solid #d5ddd5;border-radius:11px;color:var(--ink);background:var(--paper);}
+.btn {border:1px solid transparent;border-radius:12px;padding:12px 18px;font-weight:750;transition:background .15s,transform .12s;display:inline-flex;gap:9px;align-items:center;justify-content:center;white-space:nowrap;}
+.btn:active {transform:scale(.985);}
+.btn-primary {color:white;background:var(--teal);}
+.btn-primary:hover {background:#0c4f43;}
+.btn-dark {color:white;background:var(--ink);}
+.btn-secondary {border-color:#cdd9d0;background:var(--paper);color:var(--ink);}
+.btn-secondary:hover {background:#edf4ed;}
+.btn-text {border-color:transparent;background:transparent;color:var(--teal);padding-left:0;}
+.btn-danger {background:var(--red-soft);color:var(--red);border-color:#f3d5d1;}
+.btn[disabled] {opacity:.4;cursor:default;}
+.cta-row {display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.note {font-size:12px;color:var(--muted);margin:14px 0 0;line-height:1.5;}
+.section-head {display:flex;justify-content:space-between;align-items:end;gap:12px;margin-top:10px;margin-bottom:14px;}
+.section-head h2 {margin-bottom:2px;}
+.section-head p {margin:0;color:var(--muted);font-size:13px;}
+.text-button {border:0;padding:8px 0;background:transparent;color:var(--teal);font-weight:700;}
+.legend {display:flex;gap:15px;flex-wrap:wrap;font-size:12px;color:var(--muted);}
+.dot {width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:1px;}
+.dot-new {background:#bbc5c0;}.dot-learn {background:var(--amber);}.dot-build {background:var(--blue);}.dot-solid {background:var(--teal);}
+.progress-line {height:11px;border-radius:99px;background:#e5e8e1;overflow:hidden;display:flex;margin:20px 0 13px;}
+.progress-line div {height:100%;transition:width .2s;}
+.summary-blurb {display:flex;justify-content:space-between;gap:15px;color:var(--muted);font-size:13px;margin-bottom:16px;}
+.panel {border:1px solid var(--line);border-radius:20px;background:var(--paper);padding:22px;box-shadow:var(--shadow);}
+.card-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.key-card {text-align:left;border:1px solid var(--line);background:var(--paper);padding:15px;border-radius:13px;display:flex;gap:12px;align-items:center;min-width:0;}
+.key-card:hover {border-color:#93c7b6; background:#fbfffc;}
+.key-ind {width:9px;height:40px;border-radius:7px;flex-shrink:0;}
+.key-card strong {font-size:15px;font-weight:750;display:block;}
+.key-card small {display:block;color:var(--muted);font-size:12px;margin-top:2px;}
+.key-card em {margin-left:auto;color:var(--muted);font-size:12px;font-style:normal;text-align:right;white-space:nowrap;}
+.library-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.library-card {border:1px solid var(--line);border-radius:16px;background:var(--paper);padding:18px;}
+.library-card .names {display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:9px;}
+.library-card strong {font-size:16px;}.library-card small {font-size:12px;color:var(--muted);}
+.library-card svg {max-width:100%;}
+.library-card .foot {display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:3px;}
+.topic-line {margin:15px 0 18px;color:var(--muted);font-size:14px;max-width:690px;}
+.topic-line strong {color:var(--ink);}
+.tools-bar {display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:20px;}
+.tools-bar select {background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:9px 12px;}
+.tools-bar .spacer {flex:1;}
+.quiz-shell {max-width:775px;margin:10px auto 0;}
+.quiz-top {display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;font-weight:750;margin-bottom:13px;}
+.quiz-track {height:6px;background:#e6e9e3;border-radius:20px;overflow:hidden;margin-bottom:26px;}
+.quiz-track >div {height:100%;background:var(--teal);transition:width .2s;border-radius:20px;}
+.question-card {background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:26px 28px 24px;box-shadow:var(--shadow);}
+.question-type {font-size:11px;letter-spacing:1.5px;font-weight:800;text-transform:uppercase;color:var(--teal);margin-bottom:10px;}
+.question-card h2 {font-size:clamp(25px,4.5vw,32px);margin:0 0 22px;}
+.signature-large {background:#f8faf6;border:1px solid #e9ede7;border-radius:16px;max-width:550px;margin:0 auto 22px;min-height:165px;display:flex;align-items:center;justify-content:center;padding:9px;}
+.signature-large svg {display:block;width:100%;max-width:490px;}
+.question-sub {text-align:center;font-size:12px;color:var(--muted);margin-top:-8px;margin-bottom:20px;}
+.options {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;}
+.choice {display:flex;align-items:center;justify-content:space-between;gap:11px;text-align:left;min-height:68px;background:#fffefa;border:1.5px solid #dbe3db;color:var(--ink);border-radius:13px;padding:15px 15px;font-weight:750;transition:background .12s,border-color .12s;min-width:0;}
+.choice:hover:not(:disabled) {background:#f3faf5;border-color:#a6cabc;}
+.choice:disabled {cursor:default;}
+.choice .choice-label {font-size:clamp(14px,2.5vw,17px);}
+.choice .choice-kbd {color:#a0ada6;font-size:11px;font-weight:750;border:1px solid #e2e7df;border-radius:6px;padding:1px 6px;}
+.choice.correct {background:#eaf7ef;border-color:#56aa84;color:#0d633f;}
+.choice.wrong {background:var(--red-soft);border-color:#df8c83;color:#a13e36;}
+.choice.dimmed {opacity:.52;}
+.choice-write {display:block;text-align:center;padding:8px 8px 12px;min-height:144px;}
+.choice-write svg {width:100%; max-width:220px;height:92px;display:block;margin:auto;}
+.choice-write .choice-label {font-size:12px;color:var(--muted);}
+.answer-box {border-radius:14px;margin-top:20px;padding:19px;}
+.answer-box.good {background:var(--teal-soft);color:#145645;}
+.answer-box.bad {background:var(--red-soft);color:#873e39;}
+.answer-box h3 {font:bold 18px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0 0 6px;}
+.answer-box p {margin:0 0 10px;font-size:14px;line-height:1.55;}
+.answer-box .mnemonic {font-size:12px;opacity:.88;margin-bottom:0;}
+.rating {display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:19px 0 12px;}
+.rating-label {color:var(--muted);font-size:12px;font-weight:700;margin-right:auto;}
+.rate {background:var(--paper);color:var(--muted);border:1px solid var(--line);padding:8px 13px;border-radius:9px;font-weight:700;font-size:12px;}
+.rate[aria-pressed=true] {background:var(--ink);border-color:var(--ink);color:white;}
+.quiz-footer {display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:18px;}
+.quiz-footer .note {margin:0;}
+.results {max-width:690px;margin:24px auto;text-align:center;}
+.results .big-number {font:60px Georgia,serif;color:var(--teal);margin:7px 0 0;}
+.results .item {display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--line);text-align:left;gap:10px;font-size:13px;}
+.results .item b {color:var(--ink);}
+.results .item span {color:var(--muted);}
+.breakdown {margin:20px auto;max-width:460px;}
+.empty {padding:45px 20px;text-align:center;border:1px dashed #baccc1;border-radius:16px;background:#fcfdf9;}
+.empty h3 {margin-bottom:7px;}
+.empty p {color:var(--muted);}
+.details {max-width:630px;margin:0 auto;}
+.details svg {width:100%;max-width:440px;display:block;margin:15px auto;}
+.detail-meta {display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:19px 0 15px;}
+.detail-meta>div {border-radius:12px;background:#f1f4ee;text-align:center;padding:14px 7px;}
+.detail-meta strong {font:23px Georgia,serif;display:block;}
+.detail-meta small {display:block;color:var(--muted);font-size:11px;margin-top:4px;}
+footer {color:#7b8780;font-size:12px;text-align:center;padding:20px 24px 31px;border-top:1px solid var(--line);}
+.dialog-back {position:fixed;inset:0;z-index:10;background:#12292199;display:grid;place-items:center;padding:18px;}
+.dialog {background:var(--paper);border-radius:20px;padding:23px;box-shadow:0 30px 80px #0003;max-width:535px;width:100%;max-height:88vh;overflow:auto;}
+.dialog-head {display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.dialog-head h2 {margin:0;}.close {background:transparent;border:0;font-size:27px;color:var(--muted);padding:0 6px;}
+@media(max-width:750px) { .hero{grid-template-columns:1fr;} .hero-side{display:none;} .stats{grid-template-columns:repeat(2,1fr);} .hero-left{padding:25px 22px;} .wrap{padding:0 16px;} .library-grid{grid-template-columns:1fr;} .card-grid{grid-template-columns:1fr;} .section-head{align-items:start;} }
+@media(max-width:480px) { .header-inner{padding:12px 0;} .local-pill{font-size:10px;padding:6px 9px;} .brandname{font-size:20px;} .logomark{width:36px;height:36px;} .nav{padding:10px 0 13px;} .nav button{flex:1;padding:10px 9px;} .controls{grid-template-columns:1fr;gap:10px;} .stats{gap:10px;} .stat{padding:14px 13px;} .stat-n{font-size:29px;} .question-card{padding:20px 15px;} .options{gap:9px;} .choice{padding:11px;min-height:61px;} .choice-write{padding:5px 3px;min-height:113px;} .choice-write svg{height:72px;} .rating-label{width:100%;}.quiz-footer{align-items:stretch;}.quiz-footer .btn{width:100%;} .quiz-footer .note{display:none;} .signature-large{min-height:135px;} .summary-blurb{flex-direction:column;gap:3px;} }
+@media(prefers-reduced-motion:reduce) { *,*:before,*:after {animation:none!important;transition:none!important;} }
+</style>
+</head>
+<body>
+<header><div class="wrap header-inner"><a class="brand" href="#" id="homeLink" aria-label="Fifths home"><span class="logomark">♮</span><div><div class="brandname">fifths<span style="color:var(--teal)">.</span></div><div class="brandtag">KEY SIGNATURE STUDIO</div></div></a><span class="local-pill">Saved on this device</span></div></header>
+<div class="wrap"><nav class="nav" aria-label="Main navigation"><button data-view="study" aria-selected="true">Practice</button><button data-view="progress" aria-selected="false">Progress</button><button data-view="library" aria-selected="false">Key library</button></nav><main id="app" aria-live="polite"></main></div>
+<footer>30 spellings · 15 major + 15 minor · Treble clef · Works offline · No account or tracking</footer>
+<input id="importFile" type="file" accept="application/json,.json" hidden>
+<div id="modalRoot" hidden></div>
+<script>
+(()=>{'use strict';
+const SIGS=[
+ {n:-7,maj:'C♭',min:'A♭'}, {n:-6,maj:'G♭',min:'E♭'}, {n:-5,maj:'D♭',min:'B♭'},
+ {n:-4,maj:'A♭',min:'F'}, {n:-3,maj:'E♭',min:'C'}, {n:-2,maj:'B♭',min:'G'},
+ {n:-1,maj:'F',min:'D'}, {n:0,maj:'C',min:'A'}, {n:1,maj:'G',min:'E'},
+ {n:2,maj:'D',min:'B'}, {n:3,maj:'A',min:'F♯'}, {n:4,maj:'E',min:'C♯'},
+ {n:5,maj:'B',min:'G♯'}, {n:6,maj:'F♯',min:'D♯'}, {n:7,maj:'C♯',min:'A♯'}
+];
+const CARDS=SIGS.flatMap(s=>['major','minor'].map(mode=>({id:mode+'-'+s.n,n:s.n,mode,name:mode==='major'?s.maj:s.min,relative:mode==='major'?s.min:s.maj})));
+const STORAGE='fifths-key-trainer-v1';
+const MS_DAY=86400000;
+const blank=()=>({version:1,cards:{},settings:{mode:'both',drill:'mixed',newPerDay:5,rare:true},newByDay:{}});
+function load(){try{const p=JSON.parse(localStorage.getItem(STORAGE)||'null'); if(!p||typeof p!=='object'||!p.cards||!p.settings)return blank();return {version:1,cards:p.cards,settings:{...blank().settings,...p.settings},newByDay:p.newByDay||{}};}catch{return blank();}}
+let data=load(),view='study',session=null,modal=null;
+const app=document.getElementById('app');
+function save(){try{localStorage.setItem(STORAGE,JSON.stringify(data));}catch{document.querySelector('.local-pill').textContent='Save blocked — export a backup';}}
+const num=(n)=>Math.round(n).toLocaleString('en-US');
+const label=(c)=>c.name+' '+c.mode;
+const sigLabel=n=>n===0?'No sharps or flats':Math.abs(n)+' '+(n>0?'sharp':'flat')+(Math.abs(n)===1?'':'s');
+const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');};
+const record=id=>data.cards[id]||{seen:0,correct:0,wrong:0,reps:0,ease:2.5,interval:0,due:0,history:[],lapses:0};
+const status=r=>!r.seen?'new':r.interval>=21?'solid':r.interval>=7?'build':'learn';
+const statusLabel=s=>({new:'Not studied',learn:'Learning',build:'Developing',solid:'Solid'})[s];
+const accuracy=r=>r.seen?Math.round(100*r.correct/r.seen):null;
+const filtered=()=>CARDS.filter(c=>(data.settings.mode==='both'||c.mode===data.settings.mode)&&(data.settings.rare||Math.abs(c.n)<6));
+const todayNew=()=>data.newByDay[today()]||0;
+const isDue=r=>r.seen>0&&(!r.due||r.due<=Date.now());
+function humanDue(r){if(!r.seen)return 'New';const ms=r.due-Date.now(); if(ms<=0)return 'Due now';if(ms<3600000)return 'In '+Math.max(1,Math.ceil(ms/60000))+' min';if(ms<MS_DAY)return 'In '+Math.ceil(ms/3600000)+' hr';if(ms<2*MS_DAY)return 'Tomorrow';return 'In '+Math.ceil(ms/MS_DAY)+' days';}
+function dueItems(){return filtered().filter(c=>isDue(record(c.id)));}
+function newItems(){return filtered().filter(c=>!record(c.id).seen);}
+function availableCount(){return dueItems().length+Math.min(newItems().length,Math.max(0,Number(data.settings.newPerDay)-todayNew()));}
+const escapeHTML=s=>String(s).replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+// Self-contained, scalable treble-staff engravings: accidental positions follow conventional key-signature notation.
+function staff(n,mini=false){
+ const W=mini?270:500,H=mini?104:162, scale=mini?.64:1,ox=mini?34:45,oy=mini?5:14;
+ const y=p=>({E4:108,F4:100,G4:92,A4:84,B4:76,C5:68,D5:60,E5:52,F5:44,G5:36})[p];
+ const order=n>0?['F5','C5','G5','D5','A4','E5','B4']:['B4','E5','A4','D5','G4','C5','F4'];
+ const xStart=mini?94:129,dx=mini?25:35;
+ let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Treble clef, ${sigLabel(n)}">`;
+ s+=`<g transform="translate(${ox} ${oy}) scale(${scale})">`;
+ for(let i=0;i<5;i++){let yy=44+i*16;s+=`<path d="M 0 ${yy} H ${mini?380:410}" stroke="#72857c" stroke-width="1.1"/>`;}
+ s+=`<text x="5" y="124" font-family="'Apple Symbols','Noto Music','DejaVu Sans',serif" font-size="86" fill="#243c35">𝄞</text>`;
+ s+='</g>';
+ if(n!==0){for(let i=0;i<Math.abs(n);i++){
+   // Sign glyphs drawn as vector paths rather than font-dependent symbols.
+   const x=xStart+i*dx, yy=oy+scale*y(order[i]);
+   if(n>0){const sc=mini?.8:1;
+     s+=`<g transform="translate(${x} ${yy}) scale(${sc})" stroke="#214338" stroke-linecap="round" fill="none"><path d="M -5 -20 L -8 20 M 6 -22 L 3 18" stroke-width="2.8"/><path d="M -14 -6 L 13 -11 L 12 -4 L -15 1 Z M -14 6 L 13 1 L 12 8 L -15 13 Z" stroke="none" fill="#214338"/></g>`;
+   }else {const sc=mini?.83:1;
+     s+=`<g transform="translate(${x} ${yy}) scale(${sc})" stroke="#214338" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M -6 -30 L -6 13 Q -1 3 6 4 Q 15 6 9 15 Q 4 22 -6 24"/></g>`;
+   }
+ }}else if(!mini){s+='<text x="258" y="102" text-anchor="middle" font-size="14" fill="#718078">no accidentals</text>';}
+ s+='</svg>';return s;
+}
+function stats(){const all=filtered(),recs=all.map(c=>record(c.id)),seen=recs.reduce((s,r)=>s+r.seen,0),correct=recs.reduce((s,r)=>s+r.correct,0);return {all:all.length,seen,accuracy:seen?Math.round(correct/seen*100):0,solid:recs.filter(r=>status(r)==='solid').length,due:dueItems().length,new:newItems().length};}
+function options(){return `<div class="controls"><div class="field"><label for="settingMode">Key types</label><select id="settingMode"><option value="both">Major and minor</option><option value="major">Major only</option><option value="minor">Minor only</option></select></div><div class="field"><label for="settingDrill">Drill type</label><select id="settingDrill"><option value="mixed">Mixed questions</option><option value="read">Read a key signature</option><option value="write">Choose a key signature</option><option value="relative">Relative major / minor</option></select></div><div class="field"><label for="settingNew">New keys per day</label><select id="settingNew"><option value="3">3 per day</option><option value="5">5 per day</option><option value="10">10 per day</option><option value="30">All 30</option></select></div><div class="field"><label for="settingRare">Advanced spellings</label><select id="settingRare"><option value="yes">Include 6–7 sharps / flats</option><option value="no">Focus on 0–5 accidentals</option></select></div></div>`;}
+function bindOptions(){const vals={settingMode:data.settings.mode,settingDrill:data.settings.drill,settingNew:String(data.settings.newPerDay),settingRare:data.settings.rare?'yes':'no'};Object.entries(vals).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v;});
+ [['settingMode','mode',v=>v],['settingDrill','drill',v=>v],['settingNew','newPerDay',Number],['settingRare','rare',v=>v==='yes']].forEach(([id,k,fn])=>{document.getElementById(id).onchange=e=>{data.settings[k]=fn(e.target.value);save();render();};});}
+function btn(text,cls,action,extra=''){return `<button type="button" class="btn ${cls}" data-action="${action}" ${extra}>${text}</button>`;}
+function home(){const s=stats(),eligible=availableCount(),total=s.all;
+ app.innerHTML=`<section class="view"><div class="hero"><div class="hero-left"><p class="kicker">YOUR DAILY MUSIC WORKOUT</p><h1>Know every key.<br>Without hesitation.</h1><p class="lead">Read and recognize all major and minor key signatures. Practice gets harder or easier based on what you actually remember.</p><div class="controls" style="margin-bottom:15px"><div class="field"><label for="settingMode">Practice keys</label><select id="settingMode"><option value="both">Major and minor</option><option value="major">Major only</option><option value="minor">Minor only</option></select></div><div class="field"><label for="settingDrill">Question style</label><select id="settingDrill"><option value="mixed">Mixed questions</option><option value="read">Read the staff</option><option value="write">Pick the signature</option><option value="relative">Find relative key</option></select></div></div><div class="cta-row">${btn(eligible?'Start today’s session →':'All caught up — free practice →','btn-primary','start')}${btn('Free practice','btn-secondary','free')}</div><p class="note">${s.due} due for review · ${Math.min(s.new,Math.max(0,data.settings.newPerDay-todayNew()))} new available today · ${total} keys in your set</p></div><aside class="hero-side"><p class="kicker">PRACTICE THAT REMEMBERS</p><h2>Less drilling the easy keys. More time on the tricky ones.</h2><div class="how"><div class="how-icon">↗</div><div><b>Adaptive scheduling</b><span>Correct answers spread reviews farther apart. Misses come back sooner.</span></div></div><div class="how"><div class="how-icon">♪</div><div><b>Real notation</b><span>Learn the symbols on a treble staff, not just a number.</span></div></div><div class="how"><div class="how-icon">✓</div><div><b>Your data stays yours</b><span>Progress saved locally. Export a backup whenever you like.</span></div></div></aside></div><div class="stats"><div class="stat"><div class="stat-n">${s.due}</div><div class="stat-l">Due now</div></div><div class="stat"><div class="stat-n">${s.seen}</div><div class="stat-l">Answers recorded</div></div><div class="stat"><div class="stat-n">${s.accuracy}%</div><div class="stat-l">Accuracy</div></div><div class="stat"><div class="stat-n">${s.solid}<span style="font-size:18px;color:var(--muted)">/${total}</span></div><div class="stat-l">Solid keys</div></div></div><div class="panel"><div class="section-head" style="margin-top:0"><div><h2>Build your routine</h2><p>Choose how many new key names to introduce each day.</p></div></div>${options().replace(/<div class="field"><label for="settingMode">[\s\S]*?<\/select><\/div>/,'').replace(/<div class="field"><label for="settingDrill">[\s\S]*?<\/select><\/div>/,'')}<div class="legend"><span><i class="dot dot-new"></i>Not studied</span><span><i class="dot dot-learn"></i>Learning</span><span><i class="dot dot-build"></i>Developing</span><span><i class="dot dot-solid"></i>Solid</span></div></div></section>`;
+ // Separate settings controls are deliberately deduplicated in this view.
+ for(const [id,v,k,cast] of [['settingMode',data.settings.mode,'mode',v=>v],['settingDrill',data.settings.drill,'drill',v=>v],['settingNew',String(data.settings.newPerDay),'newPerDay',Number],['settingRare',data.settings.rare?'yes':'no','rare',v=>v==='yes']]){const el=document.getElementById(id);if(el){el.value=v;el.onchange=e=>{data.settings[k]=cast(e.target.value);save();render();};}}
+ wireActions();
+}
+function progress(){const s=stats(),all=filtered(),n={new:0,learn:0,build:0,solid:0};all.forEach(c=>n[status(record(c.id))]++);
+ app.innerHTML=`<section class="view"><p class="kicker">YOUR LEARNING MAP</p><h1>Progress by key</h1><p class="topic-line">Each key is tracked separately. A <strong>solid</strong> key has reached a review interval of at least 21 days.</p><div class="stats"><div class="stat"><div class="stat-n">${s.seen}</div><div class="stat-l">Total reviews</div></div><div class="stat"><div class="stat-n">${s.accuracy}%</div><div class="stat-l">Accuracy</div></div><div class="stat"><div class="stat-n">${s.solid}</div><div class="stat-l">Solid</div></div><div class="stat"><div class="stat-n">${s.due}</div><div class="stat-l">Due now</div></div></div><div class="panel" style="margin-bottom:20px"><div class="section-head" style="margin-top:0"><div><h3>Learning stages</h3><p>Across ${all.length} keys currently in your practice set</p></div></div><div class="progress-line">${['new','learn','build','solid'].map((k)=>`<div style="width:${100*n[k]/Math.max(1,all.length)}%;background:${{new:'#bbc5c0',learn:'#c98a3b',build:'#56799d',solid:'#116455'}[k]}"></div>`).join('')}</div><div class="summary-blurb"><span>${n.new} not studied · ${n.learn} learning</span><span>${n.build} developing · ${n.solid} solid</span></div><div class="legend"><span><i class="dot dot-new"></i>Not studied</span><span><i class="dot dot-learn"></i>Learning</span><span><i class="dot dot-build"></i>Developing</span><span><i class="dot dot-solid"></i>Solid</span></div></div><div class="section-head"><div><h2>Every key</h2><p>Tap any key to see accuracy, next review, and notation.</p></div></div><div class="tools-bar"><select id="progressMode" aria-label="Filter progress by mode"><option value="both">Major and minor</option><option value="major">Major only</option><option value="minor">Minor only</option></select><span class="spacer"></span>${btn('Export progress','btn-secondary','export')}${btn('Import backup','btn-secondary','import')}</div><div class="card-grid">${all.map(c=>{const r=record(c.id),st=status(r),col={new:'#bbc5c0',learn:'#c98a3b',build:'#56799d',solid:'#116455'}[st];return `<button type="button" class="key-card" data-detail="${c.id}"><span class="key-ind" style="background:${col}"></span><span style="min-width:0"><strong>${label(c)}</strong><small>${sigLabel(c.n)} · ${statusLabel(st)}</small></span><em>${r.seen?accuracy(r)+'% accuracy<br>':''}${humanDue(r)}</em></button>`;}).join('')}</div><div class="tools-bar" style="margin-top:25px"><small style="color:var(--muted);flex:1">Only this device has your progress until you export it.</small>${btn('Reset all progress','btn-danger','reset')}</div></section>`;
+ const f=document.getElementById('progressMode');f.value=data.settings.mode;f.onchange=e=>{data.settings.mode=e.target.value;save();render();};
+ wireActions();app.querySelectorAll('[data-detail]').forEach(el=>el.addEventListener('click',()=>showDetails(el.dataset.detail)));
+}
+function library(){app.innerHTML=`<section class="view"><p class="kicker">QUICK REFERENCE</p><h1>The circle of fifths, on the staff</h1><p class="topic-line">All <strong>15 standard written key signatures</strong>, from seven flats to seven sharps. Each signature belongs to one major key and its relative natural minor. Enharmonic pairs sound the same but are spelled differently.</p><div class="library-grid">${SIGS.map(s=>`<div class="library-card"><div class="names"><strong>${s.maj} major</strong><small>${s.min} minor</small></div>${staff(s.n,true)}<div class="foot"><span>${sigLabel(s.n)}</span><span>${s.n<0?'♭ B E A D G C F':s.n>0?'♯ F C G D A E B':'relative: C / A'}</span></div></div>`).join('')}</div><div class="panel" style="margin-top:20px"><h3>Two patterns that make this easier</h3><p class="topic-line" style="margin:0 0 10px"><strong>Sharps:</strong> F–C–G–D–A–E–B. The major key is a semitone above the last sharp (except C major, which has none).</p><p class="topic-line" style="margin:0"><strong>Flats:</strong> B–E–A–D–G–C–F. The major key is the penultimate flat, except F major (one flat). A minor key shares its relative major’s signature.</p></div></section>`;}
+function normalizedIndex(){return CARDS.filter(c=>(data.settings.mode==='both'||c.mode===data.settings.mode)&&(data.settings.rare||Math.abs(c.n)<6));}
+function weightedPick(pool){let weights=pool.map(c=>{const r=record(c.id);const acc=r.seen?r.correct/r.seen:.5;return 1+(1-acc)*2.2+(r.lapses||0)*.25+Math.min(2,Math.max(0,Date.now()-(r.due||0))/MS_DAY/8);});const sum=weights.reduce((a,b)=>a+b,0);let p=Math.random()*sum;for(let i=0;i<pool.length;i++){p-=weights[i];if(p<=0)return pool[i];}return pool[pool.length-1];}
+function pickCard(){const possible=normalizedIndex();const already=session.cardOrder.slice(-4);const retry=session.retry.findIndex(x=>x.turn<=session.step);
+ if(retry!==-1){const c=possible.find(c=>c.id===session.retry[retry].id);session.retry.splice(retry,1);if(c)return c;}
+ const due=possible.filter(c=>isDue(record(c.id))&&!already.includes(c.id));const fresh=possible.filter(c=>!record(c.id).seen&&!already.includes(c.id));
+ const allowance=Math.max(0,data.settings.newPerDay-todayNew());let pool=[];
+ if(session.free){const all=possible.filter(c=>!already.includes(c.id));pool=all.length?all:possible;}
+ else if(due.length&&fresh.length&&allowance){pool=Math.random()<.72?due:fresh;}
+ else if(due.length)pool=due;
+ else if(fresh.length&&allowance)pool=fresh;
+ else return null;
+ if(!pool.length)return null;return weightedPick(pool);
+}
+function distractors(target,mode){const all=SIGS.map(s=>({name:s[mode==='major'?'maj':'min'],n:s.n}));const correct=all.find(x=>x.n===target.n);const nearby=all.filter(x=>x.n!==target.n).sort((a,b)=>Math.abs(a.n-target.n)-Math.abs(b.n-target.n));const first=nearby.slice(0,7);
+ const pool=[...first.sort(()=>Math.random()-.5),...all.filter(x=>x.n!==target.n&&!first.includes(x)).sort(()=>Math.random()-.5)];return [correct,...pool.slice(0,3)].sort(()=>Math.random()-.5);
+}
+function sigDistractors(target){const candidates=SIGS.filter(s=>s.n!==target.n).sort((a,b)=>Math.abs(a.n-target.n)-Math.abs(b.n-target.n));const neighbors=candidates.slice(0,Math.min(6,candidates.length));const pool=[...neighbors.sort(()=>Math.random()-.5),...candidates.slice(6).sort(()=>Math.random()-.5)];return [SIGS.find(s=>s.n===target.n),...pool.slice(0,3)].sort(()=>Math.random()-.5);}
+function questionFor(c){const opts=['read','write','relative'];const type=data.settings.drill==='mixed'?opts[Math.floor(Math.random()*opts.length)]:data.settings.drill;
+ if(type==='read')return {type,title:`Which ${c.mode} key is this?`,text:'Read the accidental pattern',choices:distractors(c,c.mode).map(x=>({value:x.n,label:x.name+' '+c.mode})),answer:c.n};
+ if(type==='write')return {type,title:`Find the signature for ${label(c)}.`,text:'Choose the correctly written staff',choices:sigDistractors(c).map(x=>({value:x.n,label:sigLabel(x.n)})),answer:c.n};
+ const otherMode=c.mode==='major'?'minor':'major',other=SIGS.find(x=>x.n===c.n)[otherMode==='major'?'maj':'min'];
+ return {type,title:`What is the relative ${otherMode} of ${label(c)}?`,text:'Relative keys use the same signature',choices:distractors(c,otherMode).map(x=>({value:x.n,label:x.name+' '+otherMode})),answer:c.n};
+}
+function start(free=false){session={step:0,max:12,free,cardOrder:[],retry:[],current:null,question:null,graded:false,selected:null,grade:null,started:0,logs:[]};nextCard();}
+function nextCard(){if(!session)return;if(session.step>=session.max){endSession();return;}const c=pickCard();if(!c){endSession();return;}session.current=c;session.question=questionFor(c);session.graded=false;session.selected=null;session.grade=null;session.started=Date.now();session.cardOrder.push(c.id);session.step++;renderQuiz();}
+function renderQuiz(){if(!session)return;const {current:c,question:q,graded,selected}=session;
+ const chosen=selected===null?null:Number(selected),id=q.answer,correct=chosen===id;
+ app.innerHTML=`<section class="view quiz-shell"><div class="quiz-top"><span>SESSION · ${session.free?'FREE PRACTICE':'SPACED REVIEW'}</span><span>Question ${session.step} / ${session.max}</span></div><div class="quiz-track"><div style="width:${100*(session.step-1)/session.max}%"></div></div><div class="question-card"><div class="question-type">${{read:'READ THE STAFF',write:'CHOOSE THE NOTATION',relative:'RELATIVE KEYS'}[q.type]} · ${c.mode.toUpperCase()}</div><h2>${q.title}</h2>${q.type==='read'?`<div class="signature-large">${staff(c.n)}</div><p class="question-sub">Treble clef · ${q.text}</p>`:''}<div class="options">${q.choices.map((o,i)=>`<button type="button" data-choice="${o.value}" class="choice ${q.type==='write'?'choice-write':''} ${graded?(o.value===id?'correct':o.value===chosen?'wrong':'dimmed'):''}" ${graded?'disabled':''} aria-label="Option ${i+1}: ${escapeHTML(o.label)}">${q.type==='write'?`${staff(o.value,true)}<span class="choice-label">${graded?o.label:'Signature '+(i+1)}</span>`:`<span class="choice-label">${o.label}</span><span class="choice-kbd">${i+1}</span>`}</button>`).join('')}</div>${graded?`<div class="answer-box ${correct?'good':'bad'}" role="status"><h3>${correct?'✓ Correct!':'↻ Not quite'}</h3><p><strong>${label(c)}</strong> uses <strong>${sigLabel(c.n).toLowerCase()}</strong> and shares its signature with ${c.relative} ${c.mode==='major'?'minor':'major'}.</p><p class="mnemonic">${c.n>0?'Order of sharps: F–C–G–D–A–E–B.':c.n<0?'Order of flats: B–E–A–D–G–C–F.':'C major and A minor have no sharps or flats.'}</p></div><div class="rating"><span class="rating-label">${correct?'How well did you know it?':'This key will return soon'}</span>${[1,3,4,5].filter(x=>correct||x===1).map(g=>`<button class="rate" data-grade="${g}" aria-pressed="${session.grade===g}">${{1:'Again',3:'Hard',4:'Good',5:'Easy'}[g]}</button>`).join('')}</div>`:''}<div class="quiz-footer"><span class="note">${graded?'Your rating determines the next review.':'Tap an answer or press 1–4.'}</span>${graded?btn(session.step===session.max?'Finish session →':'Next question →','btn-primary','next'):btn('End session','btn-text','finish')}</div></div></section>`;
+ app.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>submit(Number(b.dataset.choice)));
+ app.querySelectorAll('[data-grade]').forEach(b=>b.onclick=()=>{session.grade=Number(b.dataset.grade);renderQuiz();});wireActions();
+}
+function submit(v){if(!session||session.graded)return;session.selected=v;const ok=v===session.question.answer;const time=Date.now()-session.started;session.grade=ok?(time<5000?5:time<14000?4:3):1;session.graded=true;renderQuiz();}
+function applyGrade(c,g,correct){const r={...record(c.id)};const oldSeen=r.seen||0;if(!oldSeen){data.newByDay[today()]=todayNew()+1;}
+ r.seen=oldSeen+1;r.correct=(r.correct||0)+(correct?1:0);r.wrong=(r.wrong||0)+(correct?0:1);r.last=Date.now();r.ease=Number(r.ease)||2.5;r.reps=Number(r.reps)||0;r.interval=Number(r.interval)||0;
+ if(g===1){r.ease=Math.max(1.3,r.ease-.2);r.reps=0;r.interval=0;r.lapses=(r.lapses||0)+1;r.due=Date.now()+2*60000;
+ // Retry a missed card after roughly three different questions, even before the timer is up.
+ if(session&&session.step+3<=session.max)session.retry.push({id:c.id,turn:session.step+3});
+ }else if(g===3){r.ease=Math.max(1.3,r.ease-.14);r.interval=r.reps===0?0.33:Math.max(1,Math.round(r.interval*1.2));r.reps++;r.due=Date.now()+r.interval*MS_DAY;
+ }else if(g===4){r.interval=r.reps===0?1:r.reps===1?3:Math.max(1,Math.round(r.interval*r.ease));r.reps++;r.due=Date.now()+r.interval*MS_DAY;
+ }else {r.ease=Math.min(3.1,r.ease+.15);r.interval=r.reps===0?3:r.reps===1?7:Math.max(2,Math.round(r.interval*r.ease*1.3));r.reps++;r.due=Date.now()+r.interval*MS_DAY;}
+ r.history=Array.isArray(r.history)?r.history.slice(-49):[];r.history.push({at:Date.now(),grade:g,correct,question:session.question.type});data.cards[c.id]=r;save();return r;
+}
+function commitAndNext(){if(!session||!session.graded)return;const c=session.current,correct=session.selected===session.question.answer,g=session.grade;const r=applyGrade(c,g,correct);session.logs.push({name:label(c),correct,grade:g,interval:r.interval});nextCard();}
+function endSession(){if(!session)return;const logs=session.logs;const correct=logs.filter(l=>l.correct).length;const unique=new Set(logs.map(l=>l.name)).size;session=null;
+ app.innerHTML=`<section class="view results"><div class="panel"><p class="kicker">SESSION COMPLETE</p><h1>Every repetition counts.</h1><div class="big-number">${logs.length?Math.round(100*correct/logs.length):0}%</div><p class="lead" style="margin:0 auto 20px">${correct} of ${logs.length} correct · ${unique} different keys practiced.</p><div class="breakdown">${logs.slice(-12).map(l=>`<div class="item"><b>${l.correct?'✓':'↻'} ${l.name}</b><span>${l.grade===1?'Retry soon':l.interval<1?'Review later today':`Next in ${Math.max(1,Math.round(l.interval))} day${Math.round(l.interval)===1?'':'s'}`}</span></div>`).join('')}</div><div class="cta-row" style="justify-content:center">${btn('Back to practice','btn-primary','home')}${btn('Another session','btn-secondary','free')}</div></div></section>`;wireActions();}
+function showDetails(id){const c=CARDS.find(c=>c.id===id);if(!c)return;const r=record(id);const st=status(r);modal=`<div class="dialog-back" role="presentation"><div class="dialog details" role="dialog" aria-modal="true" aria-label="Details for ${label(c)}"><div class="dialog-head"><h2>${label(c)}</h2><button class="close" data-close aria-label="Close details">×</button></div><p class="topic-line">${sigLabel(c.n)} · Relative ${c.mode==='major'?'minor':'major'}: ${c.relative}</p>${staff(c.n)}<div class="detail-meta"><div><strong>${r.seen||0}</strong><small>Answers</small></div><div><strong>${accuracy(r)??'—'}${r.seen?'%':''}</strong><small>Accuracy</small></div><div><strong>${r.interval?Math.round(r.interval)+'d':'—'}</strong><small>Interval</small></div></div><div class="summary-blurb"><span>${statusLabel(st)}</span><span>${humanDue(r)}</span></div><div class="cta-row">${btn('Close','btn-secondary','closeModal')}${btn('Practice this key','btn-primary','single')}</div></div></div>`;
+ document.getElementById('modalRoot').innerHTML=modal;document.getElementById('modalRoot').hidden=false;document.querySelectorAll('[data-close]').forEach(x=>x.onclick=closeModal);wireActions();document.querySelector('.dialog-back').onclick=e=>{if(e.target.classList.contains('dialog-back'))closeModal();};document.querySelector('[data-action=single]').onclick=()=>{closeModal();session={step:0,max:12,free:true,cardOrder:[],retry:[],current:c,question:questionFor(c),graded:false,selected:null,grade:null,started:Date.now(),logs:[]};session.step=1;session.cardOrder.push(c.id);view='study';navUpdate();renderQuiz();};}
+function closeModal(){document.getElementById('modalRoot').hidden=true;document.getElementById('modalRoot').innerHTML='';modal=null;}
+function exportData(){const blob=new Blob([JSON.stringify({app:'Fifths Key Signature Trainer',exported:new Date().toISOString(),...data},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='fifths-progress-'+today()+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
+function requestImport(){document.getElementById('importFile').click();}
+document.getElementById('importFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const obj=JSON.parse(await f.text());if(!obj||!obj.cards||typeof obj.cards!=='object'||!obj.settings||typeof obj.settings!=='object')throw Error('Not a valid Fifths backup');
+ if(!confirm('Replace your current progress with the imported backup? Export your current progress first if needed.'))return;
+ const clean=blank();for(const c of CARDS){const r=obj.cards[c.id];if(!r||typeof r!=='object')continue;
+ const valid=(x,fallback=0)=>Number.isFinite(Number(x))?Number(x):fallback;
+ clean.cards[c.id]={seen:Math.max(0,valid(r.seen)),correct:Math.max(0,valid(r.correct)),wrong:Math.max(0,valid(r.wrong)),ease:Math.max(1.3,Math.min(3.1,valid(r.ease,2.5))),reps:Math.max(0,valid(r.reps)),interval:Math.max(0,valid(r.interval)),due:Math.max(0,valid(r.due)),last:Math.max(0,valid(r.last)),lapses:Math.max(0,valid(r.lapses)),history:Array.isArray(r.history)?r.history.slice(-50):[]};
+ }
+ clean.settings={...clean.settings,mode:['both','major','minor'].includes(obj.settings.mode)?obj.settings.mode:'both',drill:['mixed','read','write','relative'].includes(obj.settings.drill)?obj.settings.drill:'mixed',newPerDay:[3,5,10,30].includes(Number(obj.settings.newPerDay))?Number(obj.settings.newPerDay):5,rare:obj.settings.rare!==false};
+ if(obj.newByDay&&typeof obj.newByDay==='object'){for(const [k,v] of Object.entries(obj.newByDay)){if(/^\d{4}-\d\d-\d\d$/.test(k)&&Number.isFinite(v))clean.newByDay[k]=Math.max(0,v);}}
+ data=clean;save();render();alert('Progress imported successfully.');}catch(err){alert('Could not import backup: '+err.message);}finally{e.target.value='';}};
+function wireActions(){document.querySelectorAll('[data-action]').forEach(el=>{const a=el.dataset.action;const handlers={start:()=>start(availableCount()===0),free:()=>start(true),next:commitAndNext,finish:()=>{if(session?.graded){const c=session.current,ok=session.selected===session.question.answer;const r=applyGrade(c,session.grade,ok);session.logs.push({name:label(c),correct:ok,grade:session.grade,interval:r.interval});}endSession();},home:()=>switchView('study'),export:exportData,import:requestImport,closeModal,reset:()=>{if(confirm('Permanently erase all key-signature progress stored in this browser? Export a backup first if you want to keep it.')){data=blank();save();render();}}};if(handlers[a])el.onclick=handlers[a];});}
+function navUpdate(){document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.view===view)));}
+function switchView(v){if(session&&session.graded){const c=session.current,ok=session.selected===session.question.answer;const r=applyGrade(c,session.grade,ok);session.logs.push({name:label(c),correct:ok,grade:session.grade,interval:r.interval});}session=null;view=v;navUpdate();render();window.scrollTo({top:0,behavior:'instant'});}
+function render(){if(session){renderQuiz();return;}if(view==='study')home();else if(view==='progress')progress();else library();}
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>switchView(b.dataset.view));document.getElementById('homeLink').onclick=e=>{e.preventDefault();switchView('study');};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal){closeModal();return;}if(modal||!session)return;if(e.target.matches('input,select,textarea'))return;
+ if(!session.graded&&['1','2','3','4'].includes(e.key)){const choice=session.question.choices[Number(e.key)-1];if(choice){e.preventDefault();submit(choice.value);}}
+ else if(session.graded&&e.key==='Enter'){e.preventDefault();commitAndNext();}
+ else if(session.graded&&['a','h','g','e'].includes(e.key.toLowerCase())){const grade={a:1,h:3,g:4,e:5}[e.key.toLowerCase()];if(session.selected===session.question.answer||grade===1){session.grade=grade;renderQuiz();}}
+});
+render();
+if ('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')) {
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+})();
+</script>
+</body>
+</html>
