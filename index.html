@@ -201,28 +201,39 @@ function dueItems(){return filtered().filter(c=>isDue(record(c.id)));}
 function newItems(){return filtered().filter(c=>!record(c.id).seen);}
 function availableCount(){return dueItems().length+Math.min(newItems().length,Math.max(0,Number(data.settings.newPerDay)-todayNew()));}
 const escapeHTML=s=>String(s).replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-// Self-contained, scalable treble-staff engravings: accidental positions follow conventional key-signature notation.
+// Engraved Noto Music glyph outlines (© 2018 Google Inc.; SIL Open Font License 1.1).
+// Embedded as SVG paths to render identically on iOS, Android, and desktop — no font dependency.
+const NOTATION_PATHS = {
+  clef: "M314 801Q300 854 291.0 906.0Q282 958 282 1012Q282 1059 288.5 1100.5Q295 1142 307 1177Q320 1217 341.0 1252.5Q362 1288 385.5 1311.0Q409 1334 427 1334Q451 1334 493 1249Q514 1206 524.0 1156.0Q534 1106 534 1049Q534 978 515.0 907.5Q496 837 459.5 775.0Q423 713 372 666L407 498Q422 500 432.0 501.0Q442 502 447 502Q508 502 556.0 467.5Q604 433 632.5 377.0Q661 321 661 254Q661 177 621.5 115.5Q582 54 503 25Q508 8 532 -117Q538 -147 541.0 -164.5Q544 -182 545.0 -195.0Q546 -208 546 -225Q546 -275 521.5 -314.5Q497 -354 455.5 -376.0Q414 -398 363 -398Q311 -398 271.0 -378.5Q231 -359 208.0 -324.5Q185 -290 185 -245Q185 -197 211.5 -165.0Q238 -133 287 -133Q329 -133 355.5 -163.5Q382 -194 382 -236Q382 -272 357.0 -299.0Q332 -326 292 -326H282Q308 -365 364 -365Q433 -365 472.0 -320.0Q511 -275 511 -205Q511 -188 507.0 -159.5Q503 -131 493 -91Q483 -51 477.5 -25.0Q472 1 470 12Q436 2 390 2Q304 2 222 52Q142 102 96.0 184.0Q50 266 50 361Q50 451 91 530Q132 609 192.5 675.0Q253 741 314 801ZM341 826Q364 838 390.0 870.5Q416 903 440.0 945.0Q464 987 479.0 1029.5Q494 1072 494 1106Q494 1142 483.0 1163.0Q472 1184 445 1184Q421 1184 398.5 1162.0Q376 1140 358.5 1103.5Q341 1067 331.0 1022.0Q321 977 321 930Q321 898 327.5 872.0Q334 846 341 826ZM398 379Q371 373 347.0 353.5Q323 334 308.5 306.5Q294 279 294 248Q294 223 307.0 196.5Q320 170 339 154Q352 142 365 136Q380 129 380 123Q380 120 370 117Q332 126 301.5 151.0Q271 176 253.5 211.5Q236 247 236 287Q236 330 253.5 370.0Q271 410 302.5 442.0Q334 474 374 490L345 641Q229 547 174.5 456.5Q120 366 120 277Q120 212 154.0 156.0Q188 100 247.0 65.5Q306 31 380 31Q400 31 420.5 35.0Q441 39 464 45ZM495 55Q593 97 593 227Q593 270 571.0 305.5Q549 341 512.0 362.0Q475 383 429 383Z",
+  flat: "M51 524H88V179Q117 220 148.0 243.5Q179 267 209 267Q250 267 273.0 242.0Q296 217 296 173Q296 115 263 70Q241 40 208.0 19.0Q175 -2 138.5 -13.5Q102 -25 69 -25H51ZM88 141V3Q115 3 153 25Q192 47 215.5 83.0Q239 119 239 162Q239 191 230.5 206.5Q222 222 199 222Q171 222 140.5 198.0Q110 174 88 141Z",
+  sharp: "M502 82 404 39V-135H357V20L196 -58V-233H149V-77L51 -124V-46L149 0V245L51 198V276L149 323V482H196V342L357 420V590H404V439L502 485V408L404 361V116L502 160ZM357 97V342L196 264V19Z"
+};
+// Treble staff lines, top to bottom: F5, D5, B4, G4, E4.
+// The clef curl is centered on G4, the second line from the bottom.
 function staff(n,mini=false){
- const W=mini?270:500,H=mini?104:162, scale=mini?.64:1,ox=mini?34:45,oy=mini?5:14;
- const y=p=>({E4:108,F4:100,G4:92,A4:84,B4:76,C5:68,D5:60,E5:52,F5:44,G5:36})[p];
- const order=n>0?['F5','C5','G5','D5','A4','E5','B4']:['B4','E5','A4','D5','G4','C5','F4'];
- const xStart=mini?94:129,dx=mini?25:35;
- let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Treble clef, ${sigLabel(n)}">`;
- s+=`<g transform="translate(${ox} ${oy}) scale(${scale})">`;
- for(let i=0;i<5;i++){let yy=44+i*16;s+=`<path d="M 0 ${yy} H ${mini?380:410}" stroke="#72857c" stroke-width="1.1"/>`;}
- s+=`<text x="5" y="124" font-family="'Apple Symbols','Noto Music','DejaVu Sans',serif" font-size="86" fill="#243c35">𝄞</text>`;
- s+='</g>';
- if(n!==0){for(let i=0;i<Math.abs(n);i++){
-   // Sign glyphs drawn as vector paths rather than font-dependent symbols.
-   const x=xStart+i*dx, yy=oy+scale*y(order[i]);
-   if(n>0){const sc=mini?.8:1;
-     s+=`<g transform="translate(${x} ${yy}) scale(${sc})" stroke="#214338" stroke-linecap="round" fill="none"><path d="M -5 -20 L -8 20 M 6 -22 L 3 18" stroke-width="2.8"/><path d="M -14 -6 L 13 -11 L 12 -4 L -15 1 Z M -14 6 L 13 1 L 12 8 L -15 13 Z" stroke="none" fill="#214338"/></g>`;
-   }else {const sc=mini?.83:1;
-     s+=`<g transform="translate(${x} ${yy}) scale(${sc})" stroke="#214338" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M -6 -30 L -6 13 Q -1 3 6 4 Q 15 6 9 15 Q 4 22 -6 24"/></g>`;
-   }
- }}else if(!mini){s+='<text x="258" y="102" text-anchor="middle" font-size="14" fill="#718078">no accidentals</text>';}
- s+='</svg>';return s;
+  const W=mini?270:500,H=mini?104:162,scale=mini?0.64:1,ox=mini?34:45,oy=mini?5:14;
+  const noteY={E4:108,F4:100,G4:92,A4:84,B4:76,C5:68,D5:60,E5:52,F5:44,G5:36};
+  const order=n>0?['F5','C5','G5','D5','A4','E5','B4']:['B4','E5','A4','D5','G4','C5','F4'];
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Treble clef, ${sigLabel(n)}">`;
+  s+=`<g transform="translate(${ox} ${oy}) scale(${scale})">`;
+  for(let i=0;i<5;i++)s+=`<path d="M0 ${44+i*16} H ${mini?380:410}" stroke="#72857c" stroke-width="1.1"/>`;
+  s+=`<g transform="translate(7 105) scale(0.075 -0.075)" fill="#243c35"><path d="${NOTATION_PATHS.clef}"/></g></g>`;
+  if(n!==0){
+    const isFlat=n<0;
+    const glyph=isFlat?NOTATION_PATHS.flat:NOTATION_PATHS.sharp;
+    const glyphScale=(isFlat?0.086:0.065)*scale;
+    const xStart=mini?94:129,dx=mini?25:35;
+    for(let i=0;i<Math.abs(n);i++){
+      const x=xStart+i*dx-(isFlat?173:276)*glyphScale;
+      const y=oy+scale*(noteY[order[i]]+(isFlat?11:16));
+      s+=`<g transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${glyphScale.toFixed(5)} -${glyphScale.toFixed(5)})" fill="#214338"><path d="${glyph}"/></g>`;
+    }
+  }else if(!mini){
+    s+='<text x="258" y="102" text-anchor="middle" font-size="14" fill="#718078">no accidentals</text>';
+  }
+  return s+'</svg>';
 }
+
 function stats(){const all=filtered(),recs=all.map(c=>record(c.id)),seen=recs.reduce((s,r)=>s+r.seen,0),correct=recs.reduce((s,r)=>s+r.correct,0);return {all:all.length,seen,accuracy:seen?Math.round(correct/seen*100):0,solid:recs.filter(r=>status(r)==='solid').length,due:dueItems().length,new:newItems().length};}
 function options(){return `<div class="controls"><div class="field"><label for="settingMode">Key types</label><select id="settingMode"><option value="both">Major and minor</option><option value="major">Major only</option><option value="minor">Minor only</option></select></div><div class="field"><label for="settingDrill">Drill type</label><select id="settingDrill"><option value="mixed">Mixed questions</option><option value="read">Read a key signature</option><option value="write">Choose a key signature</option><option value="relative">Relative major / minor</option></select></div><div class="field"><label for="settingNew">New keys per day</label><select id="settingNew"><option value="3">3 per day</option><option value="5">5 per day</option><option value="10">10 per day</option><option value="30">All 30</option></select></div><div class="field"><label for="settingRare">Advanced spellings</label><select id="settingRare"><option value="yes">Include 6–7 sharps / flats</option><option value="no">Focus on 0–5 accidentals</option></select></div></div>`;}
 function bindOptions(){const vals={settingMode:data.settings.mode,settingDrill:data.settings.drill,settingNew:String(data.settings.newPerDay),settingRare:data.settings.rare?'yes':'no'};Object.entries(vals).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v;});
